@@ -69,3 +69,9 @@ wcwidth==0.2.13
 python-dotenv==1.0.1
 langchain-groq
 langchain-google-genai
+langchain
+langchain_community
+langgraph 
+langsmith
+langchain_groq
+IPython
