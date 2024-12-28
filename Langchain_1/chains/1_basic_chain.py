@@ -14,7 +14,7 @@ prompt = ChatPromptTemplate.from_messages(
         ("human", "Tell me {joke_count} jokes."),
     ]
 )
-chain=prompt | model | StrOutputParser()
+chain = prompt | model | StrOutputParser()
 
-result=chain.invoke({"topic":"doctors","joke_count":3})
+result = chain.invoke({"topic": "doctors", "joke_count": 3})
 print(result)

@@ -1,7 +1,7 @@
 import os
 import json
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.document_loaders import JSONLoader  
+from langchain.document_loaders import JSONLoader
 from langchain.schema import Document  # Import the Document class
 from pinecone import Pinecone, ServerlessSpec
 from dotenv import load_dotenv
@@ -31,7 +31,9 @@ pc = Pinecone(api_key=api_key)
 index_name = "chatinit"
 
 print("\nQuery Part")
-embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
+embedding_model = HuggingFaceEmbeddings(
+    model_name="sentence-transformers/all-mpnet-base-v2"
+)
 index = pc.Index(index_name)
 vector_Store = PineconeVectorStore(index=index, embedding=embedding_model)
 retriever = vector_Store.as_retriever(
@@ -42,44 +44,52 @@ retriever = vector_Store.as_retriever(
 
 # Sales, Support, Feedback, General prompt templates
 sales_prompt = ChatPromptTemplate.from_messages(
-    [("system", "You are a helpful assistant."), ("human", "Provide a response for this sales-related query: {query}")]
+    [
+        ("system", "You are a helpful assistant."),
+        ("human", "Provide a response for this sales-related query: {query}"),
+    ]
 )
 support_prompt = ChatPromptTemplate.from_messages(
-    [("system", "You are a helpful assistant."), ("human", "Provide a response for this support-related query: {query}")]
+    [
+        ("system", "You are a helpful assistant."),
+        ("human", "Provide a response for this support-related query: {query}"),
+    ]
 )
 feedback_prompt = ChatPromptTemplate.from_messages(
-    [("system", "You are a helpful assistant."), ("human", "Respond to this feedback query: {query}")]
+    [
+        ("system", "You are a helpful assistant."),
+        ("human", "Respond to this feedback query: {query}"),
+    ]
 )
 general_prompt = ChatPromptTemplate.from_messages(
-    [("system", "You are a helpful assistant."), ("human", "Provide a general response to this query: {query}")]
+    [
+        ("system", "You are a helpful assistant."),
+        ("human", "Provide a general response to this query: {query}"),
+    ]
 )
 
 # Define branching for different types of queries with retriever
 category_branches = RunnableBranch(
-    (
-        lambda x: "sales" in x,
-        sales_prompt | model | StrOutputParser()
-    ),
-    (
-        lambda x: "support" in x,
-        support_prompt | model | StrOutputParser()
-    ),
-    (
-        lambda x: "feedback" in x,
-        feedback_prompt | model | StrOutputParser()
-    ),
-    general_prompt | model | StrOutputParser()  # Default to general response
+    (lambda x: "sales" in x, sales_prompt | model | StrOutputParser()),
+    (lambda x: "support" in x, support_prompt | model | StrOutputParser()),
+    (lambda x: "feedback" in x, feedback_prompt | model | StrOutputParser()),
+    general_prompt | model | StrOutputParser(),  # Default to general response
 )
 
 # Identify query type: sales, support, feedback, or general
 identify_query = ChatPromptTemplate.from_messages(
-    [("system", "You are a helpful assistant trained to classify user queries."), 
-     ("human", "Classify this query as 'sales', 'support', 'feedback', or 'general': {query}")]
+    [
+        ("system", "You are a helpful assistant trained to classify user queries."),
+        (
+            "human",
+            "Classify this query as 'sales', 'support', 'feedback', or 'general': {query}",
+        ),
+    ]
 )
 
 # Create the identify chain and connect it with the category branches
 identify_chain = identify_query | model | StrOutputParser()
-chain1 = identify_chain | category_branches 
+chain1 = identify_chain | category_branches
 chain = chain1 | retriever
 # Initialize chat history
 chat_history = []
