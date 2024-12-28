@@ -75,3 +75,6 @@ langgraph
 langsmith
 langchain_groq
 IPython
+langchain_huggingface
+langchain_pinecone
+pinecone
