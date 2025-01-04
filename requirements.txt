@@ -78,3 +78,7 @@ IPython
 langchain_huggingface
 langchain_pinecone
 pinecone
+phidata
+phi==0.6.7
+yfinance
+duckduckgo-search
